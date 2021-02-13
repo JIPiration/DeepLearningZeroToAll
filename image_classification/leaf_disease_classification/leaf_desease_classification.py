@@ -176,7 +176,9 @@ if __name__ == "__main__":
                 std=[0.229, 0.224, 0.225],
                 max_pixel_value=255.0,
                 p=1.0
-            )], p=1.)
+            )
+        ],
+            p=1.0)
 
         test_dataset = ImageDataset(
             image_paths=test_image_paths,
