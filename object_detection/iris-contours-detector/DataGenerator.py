@@ -30,17 +30,23 @@ class DataGenerator(Sequence):
         eye_img = eye.copy()
         if self.n_channel == 1:
             eye_img = cv2.cvtColor(eye_img, cv2.COLOR_RGB2GRAY)
-        eye_img = cv2.resize(eye_img, (self.img_size, self.img_size), cv2.INTER_NEAREST)
+        eye_img = cv2.resize(
+            eye_img, (self.img_size, self.img_size), cv2.INTER_NEAREST)
         eye_img = eye_img.astype(np.float32)
-        eye_img = cv2.normalize(eye_img, None, alpha=0.0, beta=1.0, norm_type=cv2.NORM_MINMAX)
-        eye_img = eye_img.reshape(1, self.img_size, self.img_size, self.n_channel)
+        eye_img = cv2.normalize(eye_img, None, alpha=0.0,
+                                beta=1.0, norm_type=cv2.NORM_MINMAX)
+        eye_img = eye_img.reshape(
+            1, self.img_size, self.img_size, self.n_channel)
         return eye_img
 
     def __getitem__(self, index):
-        eyes = np.empty((self.batch_size, self.img_size, self.img_size, self.n_channel), dtype=np.float32)
-        contours = np.empth((self.batch_size, self.n_contours), dtype=np.float32)
+        eyes = np.empty((self.batch_size, self.img_size,
+                         self.img_size, self.n_channel), dtype=np.float32)
+        contours = np.empth(
+            (self.batch_size, self.n_contours), dtype=np.float32)
 
-        file_list = self.file_list[index*self.batch_size:(index+1)*self.batch_size]
+        file_list = self.file_list[index *
+                                   self.batch_size:(index+1)*self.batch_size]
 
         for i, file_path in enumerate(file_list):
             # load image
@@ -53,7 +59,8 @@ class DataGenerator(Sequence):
                 img = image.load_img(os.path.join(img_path), color_mode='rgb')
                 if self.phase == 'train':
                     img = imgenhancer_Brightness = ImageEnhance.Brightness(img)
-                    img = imgenhancer_Brightness.enhance(np.random.uniform(0.5, 1.5))
+                    img = imgenhancer_Brightness.enhance(
+                        np.random.uniform(0.5, 1.5))
                 img = image.img_to_array(img, dtype=np.uint8)
 
                 h, w, c = img.shape
@@ -70,15 +77,17 @@ class DataGenerator(Sequence):
 
             # augmentation
             if self.phase == 'train':
-                sometimes = lambda aug_som: iaa.Sometimes(0.75, aug_som)
+                def sometimes(aug_som): return iaa.Sometimes(0.75, aug_som)
 
-                k_contour = ia.KeypointOnImage.from_xy_array(contour, shape=(h, w, c))
+                k_contour = ia.KeypointOnImage.from_xy_array(
+                    contour, shape=(h, w, c))
 
                 aug = [
                     iaa.Grayscale(alpha=(0.0, 1.0)),
                     iaa.GaussianBlur(sigma=random.uniform(0, 0.5)),
                     iaa.contrast.LinearContrast(random.uniform(0.5, 1.5)),
-                    iaa.AdditiveGaussianNoise(loc=0, scale=random.nuiform(0.0, 0.015*255)),
+                    iaa.AdditiveGaussianNoise(
+                        loc=0, scale=random.nuiform(0.0, 0.015*255)),
                     iaa.Multiply(random.uniform(0.75, 1.5)),
                     sometimes(iaa.CropAndPad(
                         percent=(-0.2, 0.2),
@@ -112,9 +121,10 @@ class DataGenerator(Sequence):
 
             # fliplr when phase is val and right eye image
             elif self.phase == 'val' and '__r__' in file_name:
-                sometimes = lambda aug_som: iaa.Sometimes(1.0, aug_som)
+                def sometimes(aug_som): return iaa.Sometimes(1.0, aug_som)
 
-                k_contour - ia.KeypointOnImage.from_xy_array(contour, shape=(h, w, c))
+                k_contour - \
+                    ia.KeypointOnImage.from_xy_array(contour, shape=(h, w, c))
 
                 aug = [
                     iaa.Fliplr(1.0)
