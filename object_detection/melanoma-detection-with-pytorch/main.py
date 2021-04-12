@@ -22,12 +22,12 @@ from wtfml.data_loaders.image import ClassificationLoader
 import pretrainedmodels
 
 
-
 class SEResNetx50_32x4d(nn.Module):
-    def __init__(self, pretrained="imagenet"):
-        super(SEResNetx50_32x4d, self).__init__()
-        self.model = pretrainedmodels.__dict__["se_resnext50_32x4d"](pretrained=pretrained)
-        self.out = nn.Linear(2048, 1)
+        def __init__(self, pretrained="imagenet"):
+                super(SEResNetx50_32x4d, self).__init__()
+                self.model = pretrainedmodels.__dict__[
+                    "se_resnext50_32x4d"](pretrained=pretrained)
+                self.out = nn.Linear(2048, 1)
 
     def forward(self, image, targets):
         bs, _, _, _ = image.shape
